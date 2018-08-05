@@ -11,8 +11,6 @@ namespace INC.Queue
         private QueueTaskContainer queueTaskContainer;
         private readonly IQueueConfirguration confirguration;
         private readonly IQueueTaskConfiguration queueTaskConfiguration;
-        private QueueState state = QueueState.New;
-
 
         public QueueManager(IQueueConfirguration confirguration)
         {
@@ -25,9 +23,9 @@ namespace INC.Queue
         /// <summary>
         /// Queue Manager state
         /// </summary>
-        public QueueState State => this.state;
+        public QueueState State { get; private set; } = QueueState.New;
 
-  
+
         /// <summary>
         /// Try to create new task to run job 
         /// </summary>
@@ -113,7 +111,7 @@ namespace INC.Queue
         public void AddJob(JobBase job)
         {
             this.jobContainer.AddJob(job);
-            if (state == QueueState.Started)
+            if (State == QueueState.Started)
             {
                 InvokeTask();
             }
@@ -121,19 +119,19 @@ namespace INC.Queue
         
         public void Start()
         {
-            this.state = QueueState.Starting;
+            this.State = QueueState.Starting;
             IQueueTask task = null;
             do
             {
                 task = InvokeTask();
             } while (task != null);
 
-            this.state = QueueState.Started;
+            this.State = QueueState.Started;
         }
 
         public void Stop()
         {
-            this.state = QueueState.Stopped;
+            this.State = QueueState.Stopped;
         }
         #endregion
 
