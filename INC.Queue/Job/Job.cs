@@ -38,7 +38,6 @@ namespace INC.Queue
     public sealed class Job<T1, T2> : JobBase
     {
         private Func<T1, T2> action;
-        private T2 result;
 
         public Job(T1 data, Func<T1, T2> action)
         {
@@ -49,11 +48,11 @@ namespace INC.Queue
         public T1 Data { get; }
         
 
-        public T2 Result { get; set; }
+        public T2 Result { get; private set; }
 
         public override void DoAction()
         {
-            this.result = action(this.Data);
+            this.Result = action(this.Data);
         }
     }
 
