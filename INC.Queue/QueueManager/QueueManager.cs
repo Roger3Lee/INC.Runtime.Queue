@@ -31,18 +31,23 @@ namespace INC.Queue
         /// </summary>
         private IQueueTask InvokeTask()
         {
-            var task = this.queueTaskContainer.CreateNewTask(this.queueTaskConfiguration);
-            if (task != null)
+             if (jobContainer.Count > 0)
             {
-                task.OnTaskBegin += QueueTask_OnTaskBegin;
-                task.OnTaskJobBegin += QueueTask_OnTaskJobBegin;
-                task.OnTaskJobComplete += QueueTask_OnJobComplete;
-                task.OnTaskWakeUp += QueueTask_OnTaskWakeUp;
-                task.OnTaskComplete += QueueTask_OnTaskComplete;
-                task.Run();
-            }
+                var task = this.queueTaskContainer.CreateNewTask(this.queueTaskConfiguration);
+                if (task != null)
+                {
+                    task.OnTaskBegin += QueueTask_OnTaskBegin;
+                    task.OnTaskJobBegin += QueueTask_OnTaskJobBegin;
+                    task.OnTaskJobComplete += QueueTask_OnJobComplete;
+                    task.OnTaskWakeUp += QueueTask_OnTaskWakeUp;
+                    task.OnTaskComplete += QueueTask_OnTaskComplete;
+                    task.Run();
+                }
 
-            return task;
+                return task;
+            }
+            else
+                return null;
         }
 
         #region Queue Task Event
