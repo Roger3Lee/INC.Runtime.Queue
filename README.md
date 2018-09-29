@@ -2,7 +2,7 @@
 
 An implement queue basic on .net framwork C# language
 
-Used it like that:
+You can used it like that:
 
 ```C#
 var manager = new QueueManager(new QueueConfirguration(5, 10000, 1));
