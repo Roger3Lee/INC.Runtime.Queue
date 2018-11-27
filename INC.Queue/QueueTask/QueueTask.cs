@@ -92,8 +92,15 @@ namespace INC.Queue
         public void Dispose()
         {
             if (task.Status != TaskStatus.Faulted && task.Status != TaskStatus.Canceled)
-                task.Wait();
-
+            {
+                try
+                {
+                    task.Wait();//task throw error.
+                }
+                catch (Exception)
+                {
+                }
+            }
             task.Dispose();
         }
     }

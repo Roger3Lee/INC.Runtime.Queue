@@ -36,7 +36,7 @@ namespace INC.Queue
             }
         }
 
-        public int Count => _jobs.Count;
+        public int Count => _jobs==null?0:_jobs.Count;
 
         public void Dispose()
         {
