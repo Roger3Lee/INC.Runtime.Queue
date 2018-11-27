@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
+using INC.Queue.Delegate;
 
 namespace INC.Queue
 {
@@ -35,25 +37,38 @@ namespace INC.Queue
         }
     }
 
-    public sealed class Job<T1, T2> : JobBase
+    public sealed class Job<T1, T2> : JobBase, INotifyJobResultChange<T2>
     {
-        private Func<T1, T2> action;
-        private T2 result;
+        private Func<T1, T2> _action;
+        private T2 _result;
+        public event JobDelegate.JobResultChangeEventHandler<T2> OnResultChange;
 
         public Job(T1 data, Func<T1, T2> action)
         {
             this.Data = data;
-            this.action = action;
+            this._action = action;
         }
 
         public T1 Data { get; }
-        
 
-        public T2 Result { get; set; }
+
+        public T2 Result
+        {
+            get
+            {
+                return _result;
+            }
+            set
+            {
+                _result = value;
+                this.OnResultChange?.Invoke(this, new JobResultChangeEventArgs<T2>() { JobResult = value });
+
+            }
+        }
 
         public override void DoAction()
         {
-            this.result = action(this.Data);
+            this._result = _action(this.Data);
         }
     }
 

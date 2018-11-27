@@ -17,7 +17,7 @@ namespace INC.Queue
         }
 
         /// <summary>
-        /// Create nwe Task
+        /// Create new Task
         /// </summary>
         /// <param name="configuration"></param>
         public IQueueTask CreateNewTask(IQueueTaskConfiguration configuration)
