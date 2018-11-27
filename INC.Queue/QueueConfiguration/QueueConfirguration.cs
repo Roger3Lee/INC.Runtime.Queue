@@ -4,7 +4,7 @@ using System.Text;
 
 namespace INC.Queue
 {
-    internal class QueueConfirguration : IQueueConfirguration
+    public class QueueConfirguration : IQueueConfirguration
     {
         private int taskMaxCount;
         private int taskDelay;
