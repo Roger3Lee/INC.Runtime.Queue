@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Authors>Roger lee</Authors>
+    <PackageLicenseUrl>https://github.com/Roger3Lee/INC.Queue/blob/master/LICENSE</PackageLicenseUrl>
+    <Copyright>MIT</Copyright>
+    <PackageProjectUrl>https://github.com/Roger3Lee/INC.Queue</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Roger3Lee/INC.Queue</RepositoryUrl>
+    <NeutralLanguage>C#</NeutralLanguage>
+  </PropertyGroup>
+
+</Project>

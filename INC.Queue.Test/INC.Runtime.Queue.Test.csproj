@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\INC.Queue\INC.Queue.csproj" />
+    <ProjectReference Include="..\INC.Runtime.Queue\INC.Runtime.Queue.csproj" />
   </ItemGroup>
 
 </Project>
