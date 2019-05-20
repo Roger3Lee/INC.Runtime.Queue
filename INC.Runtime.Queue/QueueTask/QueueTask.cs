@@ -51,7 +51,7 @@ namespace INC.Runtime.Queue
 
         private void ExecuteJob()
         {
-            while (!Interlocked.Equals(currentDelayTimes, configuration.DelayTimes))
+            while (currentDelayTimes != configuration.DelayTimes)
             {
                 ///rasie task begin evnet
                 OnTaskBegin?.Invoke(this, new EventArgs());

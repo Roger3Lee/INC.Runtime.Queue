@@ -68,7 +68,7 @@ namespace INC.Runtime.Queue
 
         public override void DoAction()
         {
-            this._result = _action(this.Data);
+            this.Result = _action(this.Data);
         }
     }
 
