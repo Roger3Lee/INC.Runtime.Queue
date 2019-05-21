@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace INC.Runtime.Queue
 {
@@ -11,6 +12,8 @@ namespace INC.Runtime.Queue
         private QueueTaskContainer queueTaskContainer;
         private readonly IQueueConfirguration confirguration;
         private readonly IQueueTaskConfiguration queueTaskConfiguration;
+        private QueueState state = QueueState.New;
+        private int taskJobCount = 0;
 
         public QueueManager(IQueueConfirguration confirguration)
         {
@@ -23,7 +26,7 @@ namespace INC.Runtime.Queue
         /// <summary>
         /// Queue Manager state
         /// </summary>
-        public QueueState State { get; private set; } = QueueState.New;
+		public QueueState State { get { return state; } private set { this.state = value; } }
 
 
         /// <summary>
@@ -31,7 +34,7 @@ namespace INC.Runtime.Queue
         /// </summary>
         private IQueueTask InvokeTask()
         {
-             if (jobContainer.Count > 0)
+            if (jobContainer.Count - taskJobCount > 0)
             {
                 var task = this.queueTaskContainer.CreateNewTask(this.queueTaskConfiguration);
                 if (task != null)
@@ -44,6 +47,7 @@ namespace INC.Runtime.Queue
                     task.Run();
                 }
 
+                Interlocked.Increment(ref taskJobCount);
                 return task;
             }
             else
@@ -51,6 +55,18 @@ namespace INC.Runtime.Queue
         }
 
         #region Queue Task Event
+
+        /// <summary>
+        /// task start event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        protected void QueueTask_OnTaskBegin(object sender, EventArgs args)
+        {
+            var task = sender as IQueueTask;
+            task.CurrentJob = this.jobContainer.GetJob();
+            Interlocked.Decrement(ref taskJobCount);
+        }
 
         protected void QueueTask_OnTaskJobBegin(object sender, Delegate.QueueTaskEventArgs args)
         {
@@ -65,7 +81,7 @@ namespace INC.Runtime.Queue
         {
             var task = sender as IQueueTask;
             if (task.CurrentJob != null && task.CurrentJob.CompleteCallback != null)
-                task.CurrentJob.CompleteCallback();
+                task.CurrentJob.CompleteCallback(task.CurrentJob);
 
             //Get The Last job
             task.CurrentJob = this.jobContainer.GetJob();
@@ -83,17 +99,6 @@ namespace INC.Runtime.Queue
             this.queueTaskContainer.RemomveTask(task);
             if (this.jobContainer.Count > 0)
                 InvokeTask();
-        }
-
-        /// <summary>
-        /// task start event
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        protected void QueueTask_OnTaskBegin(object sender, EventArgs args)
-        {
-            var task = sender as IQueueTask;
-            task.CurrentJob = this.jobContainer.GetJob();
         }
 
 
@@ -121,11 +126,11 @@ namespace INC.Runtime.Queue
                 InvokeTask();
             }
         }
-        
+
         public void Start()
         {
             this.State = QueueState.Starting;
-            IQueueTask task = null;
+            IQueueTask task;
             do
             {
                 task = InvokeTask();

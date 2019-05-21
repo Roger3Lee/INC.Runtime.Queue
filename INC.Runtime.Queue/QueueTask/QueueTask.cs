@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using INC.Runtime.Queue.Delegate;
-using static INC.Runtime.Queue.Delegate.QueueTaskDelegate;
 using System.Threading;
 
 namespace INC.Runtime.Queue
@@ -20,15 +19,15 @@ namespace INC.Runtime.Queue
         }
 
 
-        public IQueueTaskConfiguration Configuration => configuration;
+		public IQueueTaskConfiguration Configuration { get { return configuration; } } 
 
         public JobBase CurrentJob { get; set; }
 
-        public event TaskBeginEventHander OnTaskBegin;
-        public event TaskJobBeginEventHander OnTaskJobBegin;
-        public event TaskJobCompleteEventHander OnTaskJobComplete;
-        public event TaskWakeUpEventHander OnTaskWakeUp;
-        public event TaskCompleteEventHander OnTaskComplete;
+        public event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskBeginEventHander OnTaskBegin;
+        public event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskJobBeginEventHander OnTaskJobBegin;
+        public event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskJobCompleteEventHander OnTaskJobComplete;
+        public event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskWakeUpEventHander OnTaskWakeUp;
+        public event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskCompleteEventHander OnTaskComplete;
 
         public void Run()
         {
@@ -49,38 +48,52 @@ namespace INC.Runtime.Queue
             }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.AttachedToParent);
         }
 
-        private void ExecuteJob()
-        {
-            while (currentDelayTimes != configuration.DelayTimes)
-            {
-                ///rasie task begin evnet
-                OnTaskBegin?.Invoke(this, new EventArgs());
+		private void ExecuteJob()
+		{
+			while (currentDelayTimes < configuration.DelayTimes)
+			{
+				///rasie task begin evnet
+				if (OnTaskBegin != null)
+					OnTaskBegin.Invoke(this, new EventArgs());
 
-                while (this.CurrentJob != null)
-                {
-                    ///Rasie job complete event
-                    OnTaskJobBegin?.Invoke(this, new QueueTaskEventArgs(this.CurrentJob));
+				while (this.CurrentJob != null)
+				{
+					///Rasie job begin event
+					if (OnTaskJobBegin != null)
+						OnTaskJobBegin.Invoke(this, new QueueTaskEventArgs(this.CurrentJob));
 
-                    this.CurrentJob.DoAction();
+					try
+					{
+						this.CurrentJob.DoAction();
+					}
+					catch (Exception ex)
+					{
+						this.CurrentJob.SetFault(ex);
+					}
+					finally
+					{
+						///Rasie job complete event
+						if (OnTaskJobComplete != null)
+							OnTaskJobComplete.Invoke(this, new QueueTaskEventArgs(this.CurrentJob));
+					}
 
-                    ///Rasie job complete event
-                    OnTaskJobComplete?.Invoke(this, new QueueTaskEventArgs(this.CurrentJob));
-                    Interlocked.Exchange(ref currentDelayTimes, 0);
-                }
+					Interlocked.Exchange(ref currentDelayTimes, 0);
+				}
 
-                ///Delay task for wait job
-                Task.Delay(configuration.TaskDelay).Wait();
-                if (OnTaskWakeUp?.Invoke(this, new EventArgs()) == false)
-                {
-                    Interlocked.Increment(ref currentDelayTimes);
-                }
-            }
-        }
+				///Delay task for wait job
+				Task.Delay(configuration.TaskDelay).Wait();
+				if (OnTaskWakeUp != null && OnTaskWakeUp.Invoke(this, new EventArgs()) == false)
+				{
+					Interlocked.Increment(ref currentDelayTimes);
+				}
+			}
+		}
 
         private void OnTaskCompleted(Task task)
         {
             ///rasie task begin evnet
-            OnTaskComplete?.Invoke(this, new QueueTaskEventArgs(this.CurrentJob));
+			if(OnTaskComplete!=null)
+				OnTaskComplete.Invoke(this, new QueueTaskEventArgs(this.CurrentJob));
         }
 
         private void OnTaskExecuteFault(Task task)

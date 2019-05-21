@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using static INC.Runtime.Queue.Delegate.QueueTaskDelegate;
 
 namespace INC.Runtime.Queue
 {
@@ -21,11 +20,11 @@ namespace INC.Runtime.Queue
 
         #region Event
 
-        event TaskBeginEventHander OnTaskBegin;
-        event TaskJobBeginEventHander OnTaskJobBegin;
-        event TaskJobCompleteEventHander OnTaskJobComplete;
-        event TaskWakeUpEventHander OnTaskWakeUp;
-        event TaskCompleteEventHander OnTaskComplete;
+        event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskBeginEventHander OnTaskBegin;
+        event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskJobBeginEventHander OnTaskJobBegin;
+        event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskJobCompleteEventHander OnTaskJobComplete;
+        event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskWakeUpEventHander OnTaskWakeUp;
+        event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskCompleteEventHander OnTaskComplete;
 
         #endregion
 
