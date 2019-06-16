@@ -20,6 +20,7 @@ namespace INC.Runtime.Queue
 
         #region Event
 
+        event EventHandler<EventArgs> OnTaskBeginExecuted;
         event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskBeginEventHander OnTaskBegin;
         event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskJobBeginEventHander OnTaskJobBegin;
         event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskJobCompleteEventHander OnTaskJobComplete;

@@ -36,22 +36,36 @@ namespace INC.Runtime.Queue
         {
             if (jobContainer.Count - taskJobCount > 0)
             {
-                var task = this.queueTaskContainer.CreateNewTask(this.queueTaskConfiguration);
-                if (task != null)
+                try
                 {
-                    task.OnTaskBegin += QueueTask_OnTaskBegin;
-                    task.OnTaskJobBegin += QueueTask_OnTaskJobBegin;
-                    task.OnTaskJobComplete += QueueTask_OnJobComplete;
-                    task.OnTaskWakeUp += QueueTask_OnTaskWakeUp;
-                    task.OnTaskComplete += QueueTask_OnTaskComplete;
-                    task.Run();
-                }
+                    Interlocked.Increment(ref taskJobCount);
+                    var task = this.queueTaskContainer.CreateNewTask(this.queueTaskConfiguration);
+                    if (task != null)
+                    {
+                        task.OnTaskBeginExecuted += QueueTask_OnTaskBeginExecuted;
+                        task.OnTaskBegin += QueueTask_OnTaskBegin;
+                        task.OnTaskJobBegin += QueueTask_OnTaskJobBegin;
+                        task.OnTaskJobComplete += QueueTask_OnJobComplete;
+                        task.OnTaskWakeUp += QueueTask_OnTaskWakeUp;
+                        task.OnTaskComplete += QueueTask_OnTaskComplete;
+                        task.Run();
+                    }
 
-                Interlocked.Increment(ref taskJobCount);
-                return task;
+                    return task;
+                }
+                catch (Exception)
+                {
+                    Interlocked.Decrement(ref taskJobCount);
+                    throw;
+                }
             }
             else
                 return null;
+        }
+
+        private void QueueTask_OnTaskBeginExecuted(object sender, EventArgs e)
+        {
+            Interlocked.Decrement(ref taskJobCount);
         }
 
         #region Queue Task Event
@@ -65,7 +79,6 @@ namespace INC.Runtime.Queue
         {
             var task = sender as IQueueTask;
             task.CurrentJob = this.jobContainer.GetJob();
-            Interlocked.Decrement(ref taskJobCount);
         }
 
         protected void QueueTask_OnTaskJobBegin(object sender, Delegate.QueueTaskEventArgs args)

@@ -23,6 +23,7 @@ namespace INC.Runtime.Queue
 
         public JobBase CurrentJob { get; set; }
 
+        public event EventHandler<EventArgs> OnTaskBeginExecuted;
         public event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskBeginEventHander OnTaskBegin;
         public event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskJobBeginEventHander OnTaskJobBegin;
         public event INC.Runtime.Queue.Delegate.QueueTaskDelegate.TaskJobCompleteEventHander OnTaskJobComplete;
@@ -50,6 +51,7 @@ namespace INC.Runtime.Queue
 
 		private void ExecuteJob()
 		{
+            this.OnTaskBeginExecuted?.Invoke(this, null);
 			while (currentDelayTimes < configuration.DelayTimes)
 			{
 				///rasie task begin evnet
