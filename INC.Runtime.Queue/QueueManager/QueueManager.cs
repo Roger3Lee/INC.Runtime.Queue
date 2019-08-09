@@ -15,10 +15,10 @@ namespace INC.Runtime.Queue
         private QueueState state = QueueState.New;
         private int taskJobCount = 0;
 
-        public QueueManager(IQueueConfirguration confirguration)
+        public QueueManager(IQueueConfirguration confirguration, QueueTaskMode mode, JobPriorityScheduleConfig config)
         {
-            this.jobContainer = new JobContainer();
-            this.queueTaskContainer = new QueueTaskContainer(confirguration.TaskMaxCount);
+            this.jobContainer = new JobContainer(config);
+            this.queueTaskContainer = new QueueTaskContainer(confirguration.TaskMaxCount, mode);
             this.confirguration = confirguration;
             this.queueTaskConfiguration = QueueTaskConfiguration.GetConfiguration(this.confirguration);
         }

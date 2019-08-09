@@ -5,8 +5,15 @@ using System.Text;
 
 namespace INC.Runtime.Queue
 {
+    public enum QueueTaskMode
+    {
+        Thread = 1,
+        Task = 2
+    }
+
     public interface IQueueTask : IDisposable
     {
+        QueueTaskMode Mode { get; }
         /// <summary>
         /// configuration
         /// </summary>

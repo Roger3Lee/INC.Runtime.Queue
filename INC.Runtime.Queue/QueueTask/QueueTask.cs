@@ -10,16 +10,22 @@ namespace INC.Runtime.Queue
     public sealed class QueueTask : IQueueTask
     {
         private Task task;
+        private Thread _thread;//For Thread Mode
         private int currentDelayTimes = 0;
         private IQueueTaskConfiguration configuration;
+        private QueueTaskMode _mode = QueueTaskMode.Thread;
 
-        public QueueTask(IQueueTaskConfiguration queueTaskConfiguration)
+        public QueueTask(IQueueTaskConfiguration queueTaskConfiguration, QueueTaskMode mode = QueueTaskMode.Thread)
         {
             this.configuration = queueTaskConfiguration;
+            this._mode = mode;
+        }
+        public QueueTaskMode Mode
+        {
+            get { return _mode; }
         }
 
-
-		public IQueueTaskConfiguration Configuration { get { return configuration; } } 
+        public IQueueTaskConfiguration Configuration { get { return configuration; } } 
 
         public JobBase CurrentJob { get; set; }
 
@@ -32,21 +38,44 @@ namespace INC.Runtime.Queue
 
         public void Run()
         {
-            this.task = new Task(() =>
+            if (_mode == QueueTaskMode.Thread)
             {
-                ExecuteJob();
-            });
+                this._thread = new Thread(() =>
+                {
+                    try
+                    {
+                        ExecuteJob();
+                    }
+                    catch (Exception ex)
+                    {
+                        OnTaskExecuteFault(ex);
+                    }
+                    finally
+                    {
+                        OnTaskCompleted();
+                    }
+                });
+                this._thread.IsBackground = true;
+                this._thread.Start();
+            }
+            else
+            {
+                this.task = new Task(() =>
+                {
+                    ExecuteJob();
+                });
 
-            this.task.Start();
-            this.task.ContinueWith((t) =>
-            {
-                OnTaskCompleted(t);
-            }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.AttachedToParent);
+                this.task.Start();
+                this.task.ContinueWith((t) =>
+                {
+                    OnTaskCompleted();
+                }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.AttachedToParent);
 
-            this.task.ContinueWith(t =>
-            {
-                OnTaskExecuteFault(t);
-            }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.AttachedToParent);
+                this.task.ContinueWith(t =>
+                {
+                    OnTaskExecuteFault(t.Exception);
+                }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.AttachedToParent);
+            }
         }
 
 		private void ExecuteJob()
@@ -91,32 +120,23 @@ namespace INC.Runtime.Queue
 			}
 		}
 
-        private void OnTaskCompleted(Task task)
+        private void OnTaskCompleted()
         {
             ///rasie task begin evnet
-			if(OnTaskComplete!=null)
-				OnTaskComplete.Invoke(this, new QueueTaskEventArgs(this.CurrentJob));
+            if (OnTaskComplete != null)
+                OnTaskComplete.Invoke(this, new QueueTaskEventArgs(this.CurrentJob));
         }
 
-        private void OnTaskExecuteFault(Task task)
+        private void OnTaskExecuteFault(Exception ex)
         {
-            this.CurrentJob.SetFault(task.Exception);
-            OnTaskCompleted(task);
+            if (this.CurrentJob != null)
+                this.CurrentJob.SetFault(ex);
+            OnTaskCompleted();
         }
 
         public void Dispose()
         {
-            if (task.Status != TaskStatus.Faulted && task.Status != TaskStatus.Canceled)
-            {
-                try
-                {
-                    task.Wait();//task throw error.
-                }
-                catch (Exception)
-                {
-                }
-            }
-            task.Dispose();
+            //do nothing
         }
     }
 }

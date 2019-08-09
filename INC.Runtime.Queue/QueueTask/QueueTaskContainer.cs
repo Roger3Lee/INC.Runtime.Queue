@@ -7,13 +7,15 @@ namespace INC.Runtime.Queue
 {
     public sealed class QueueTaskContainer : IDisposable
     {
-        private ConcurrentBag<IQueueTask> queueTasks = new ConcurrentBag<IQueueTask>();
-        private int maxCount;
-        private object lockObject = new object();
+        private ConcurrentBag<IQueueTask> _queueTasks = new ConcurrentBag<IQueueTask>();
+        private int _maxCount;
+        private readonly QueueTaskMode _queueTaskMode;
+        private readonly object _lockObject = new object();
 
-        public QueueTaskContainer(int maxCount)
+        public QueueTaskContainer(int maxCount, QueueTaskMode mode)
         {
-            this.maxCount = maxCount;
+            this._maxCount = maxCount;
+            this._queueTaskMode = mode;
         }
 
         /// <summary>
@@ -22,14 +24,14 @@ namespace INC.Runtime.Queue
         /// <param name="configuration"></param>
         public IQueueTask CreateNewTask(IQueueTaskConfiguration configuration)
         {
-            lock (lockObject)
+            lock (_lockObject)
             {
-                if (maxCount > queueTasks.Count)
+                if (_maxCount > _queueTasks.Count)
                 {
-                    var queueTask = new QueueTask(configuration);
+                    var queueTask = new QueueTask(configuration, _queueTaskMode);
 
                     ///Add to task collection
-                    queueTasks.Add(queueTask);
+                    _queueTasks.Add(queueTask);
                     return queueTask;
                 }
                 else
@@ -39,7 +41,7 @@ namespace INC.Runtime.Queue
 
         public bool RemomveTask(IQueueTask queueTask)
         {
-            if (queueTasks.TryTake(out queueTask))
+            if (_queueTasks.TryTake(out queueTask))
             {
                 queueTask.Dispose();
                 return true;
@@ -50,10 +52,10 @@ namespace INC.Runtime.Queue
 
         public void Dispose()
         {
-            foreach (var queueTask in queueTasks)
+            foreach (var queueTask in _queueTasks)
                 queueTask.Dispose();
 
-            queueTasks = null;
+            _queueTasks = null;
         }
     }
 }
