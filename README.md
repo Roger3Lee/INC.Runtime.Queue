@@ -12,9 +12,9 @@ for (int i = 0; i < 20; i++)
 {
     manager.AddJob(new Job<int>(i, (index) =>
     {
-        Console.WriteLine($"线程id:{System.Threading.Thread.CurrentThread.ManagedThreadId}    当前序号：{index}");
+        Console.WriteLine($"Thread id:{System.Threading.Thread.CurrentThread.ManagedThreadId}    SeqNo.：{index}");
     }));
 }
-Console.WriteLine($"主线程ID:{System.Threading.Thread.CurrentThread.ManagedThreadId}");
+Console.WriteLine($"Main Thread ID:{System.Threading.Thread.CurrentThread.ManagedThreadId}");
 Console.ReadLine();
 ```
