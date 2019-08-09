@@ -12,12 +12,12 @@ namespace INC.Runtime.Queue
         private Task _task;
         private Thread _thread;//For Thread Mode
         private int _currentDelayTimes = 0;
-        private readonly IQueueTaskConfiguration configuration;
+        private readonly IQueueTaskConfiguration _configuration;
         private readonly QueueTaskMode _mode = QueueTaskMode.Thread;
 
         public QueueTask(IQueueTaskConfiguration queueTaskConfiguration, QueueTaskMode mode = QueueTaskMode.Thread)
         {
-            this.configuration = queueTaskConfiguration;
+            this._configuration = queueTaskConfiguration;
             this._mode = mode;
         }
         public QueueTaskMode Mode
@@ -25,7 +25,7 @@ namespace INC.Runtime.Queue
             get { return _mode; }
         }
 
-        public IQueueTaskConfiguration Configuration { get { return configuration; } } 
+        public IQueueTaskConfiguration Configuration { get { return _configuration; } } 
 
         public JobBase CurrentJob { get; set; }
 
@@ -81,7 +81,7 @@ namespace INC.Runtime.Queue
 		private void ExecuteJob()
 		{
             this.OnTaskBeginExecuted?.Invoke(this, null);
-			while (_currentDelayTimes < configuration.DelayTimes)
+			while (_currentDelayTimes < _configuration.DelayTimes)
 			{
 				///rasie task begin evnet
 				if (OnTaskBegin != null)
