@@ -14,7 +14,7 @@ namespace INC.Runtime.Queue
         /// 
         /// </summary>
         /// <param name="taskMaxCount">Thread count</param>
-        /// <param name="taskDelay">thread free sleep time</param>
+        /// <param name="taskDelay">thread free sleep interval</param>
         /// <param name="delayTimes">sleep times</param>
 		public QueueConfirguration(int taskMaxCount, int taskDelay, int delayTimes)
 		{
