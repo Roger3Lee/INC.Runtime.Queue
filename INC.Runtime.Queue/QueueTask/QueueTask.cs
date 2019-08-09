@@ -9,11 +9,11 @@ namespace INC.Runtime.Queue
 {
     public sealed class QueueTask : IQueueTask
     {
-        private Task task;
+        private Task _task;
         private Thread _thread;//For Thread Mode
-        private int currentDelayTimes = 0;
-        private IQueueTaskConfiguration configuration;
-        private QueueTaskMode _mode = QueueTaskMode.Thread;
+        private int _currentDelayTimes = 0;
+        private readonly IQueueTaskConfiguration configuration;
+        private readonly QueueTaskMode _mode = QueueTaskMode.Thread;
 
         public QueueTask(IQueueTaskConfiguration queueTaskConfiguration, QueueTaskMode mode = QueueTaskMode.Thread)
         {
@@ -60,18 +60,18 @@ namespace INC.Runtime.Queue
             }
             else
             {
-                this.task = new Task(() =>
+                this._task = new Task(() =>
                 {
                     ExecuteJob();
                 });
 
-                this.task.Start();
-                this.task.ContinueWith((t) =>
+                this._task.Start();
+                this._task.ContinueWith((t) =>
                 {
                     OnTaskCompleted();
                 }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.AttachedToParent);
 
-                this.task.ContinueWith(t =>
+                this._task.ContinueWith(t =>
                 {
                     OnTaskExecuteFault(t.Exception);
                 }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.AttachedToParent);
@@ -81,7 +81,7 @@ namespace INC.Runtime.Queue
 		private void ExecuteJob()
 		{
             this.OnTaskBeginExecuted?.Invoke(this, null);
-			while (currentDelayTimes < configuration.DelayTimes)
+			while (_currentDelayTimes < configuration.DelayTimes)
 			{
 				///rasie task begin evnet
 				if (OnTaskBegin != null)
@@ -108,14 +108,14 @@ namespace INC.Runtime.Queue
 							OnTaskJobComplete.Invoke(this, new QueueTaskEventArgs(this.CurrentJob));
 					}
 
-					Interlocked.Exchange(ref currentDelayTimes, 0);
+					Interlocked.Exchange(ref _currentDelayTimes, 0);
 				}
 
-				///Delay task for wait job
-				Task.Delay(configuration.TaskDelay).Wait();
-				if (OnTaskWakeUp != null && OnTaskWakeUp.Invoke(this, new EventArgs()) == false)
+                ///Delay task for wait job
+                Thread.Sleep(_configuration.TaskDelay);
+                if (OnTaskWakeUp != null && OnTaskWakeUp.Invoke(this, new EventArgs()) == false)
 				{
-					Interlocked.Increment(ref currentDelayTimes);
+					Interlocked.Increment(ref _currentDelayTimes);
 				}
 			}
 		}

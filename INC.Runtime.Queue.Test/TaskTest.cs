@@ -32,8 +32,7 @@ namespace INC.Queue.Test
         [TestMethod]
         public void QueueManagerTest()
         {
-            var manager = new QueueManager(new QueueConfirguration(5, 10000, 1));
-            var lockobject = new object();
+            var manager = new QueueManager(new QueueConfirguration(5, 10000, 1), QueueTaskMode.Task, new JobPriorityScheduleConfig(DateTime.Now, new TimeSpan(0, 1, 0)));
             manager.Start();
 
             Parallel.For(0, 100, (i) =>
@@ -42,38 +41,32 @@ namespace INC.Queue.Test
                 {
                     manager.AddJob(new Job(() =>
                     {
-                        lock (lockobject)
-                        {
-                            System.Threading.Interlocked.Increment(ref count);
+                        System.Threading.Interlocked.Increment(ref count);
 
-                            var sr = System.IO.File.AppendText("C://1.txt");
-                            sr.Write($"Task id{System.Threading.Thread.CurrentThread.ManagedThreadId}_{count}_{System.Environment.NewLine}");
-                            sr.Flush();
-                            sr.Dispose();
-                        }
+                        var sr = System.IO.File.AppendText("C://1.txt");
+                        sr.Write($"Task id{System.Threading.Thread.CurrentThread.ManagedThreadId}_{count}_{System.Environment.NewLine}");
+                        sr.Flush();
+                        sr.Dispose();
                     }));
                 }
             });
-            
-             Parallel.For(0, 100, (i) =>
-            {
-                for (int j = 0; j < 10; j++)
-                {
-                    System.Threading.Thread.Sleep(new Random(10).Next(100));
-                    manager.AddJob(new Job(() =>
-                    {
-                        lock (lockobject)
-                        {
-                            System.Threading.Interlocked.Increment(ref count);
 
-                            var sr = System.IO.File.AppendText("C://1.txt");
-                            sr.Write($"Task id{System.Threading.Thread.CurrentThread.ManagedThreadId}_{count}_{System.Environment.NewLine}");
-                            sr.Flush();
-                            sr.Dispose();
-                        }
-                    }));
-                }
-            });
+            Parallel.For(0, 100, (i) =>
+           {
+               for (int j = 0; j < 10; j++)
+               {
+                   System.Threading.Thread.Sleep(new Random(10).Next(100));
+                   manager.AddJob(new Job(() =>
+                   {
+                       System.Threading.Interlocked.Increment(ref count);
+
+                       var sr = System.IO.File.AppendText("C://1.txt");
+                       sr.Write($"Task id{System.Threading.Thread.CurrentThread.ManagedThreadId}_{count}_{System.Environment.NewLine}");
+                       sr.Flush();
+                       sr.Dispose();
+                   }));
+               }
+           });
 
             System.Threading.Thread.Sleep(int.MaxValue);
         }
