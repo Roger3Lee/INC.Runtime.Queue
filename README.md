@@ -1,6 +1,6 @@
 # INC.Queue
 
-An implement queue basic on .net framwork C# language
+Implementent a queue basic on .net framwork C# language
 
 You can used it like this:
 
