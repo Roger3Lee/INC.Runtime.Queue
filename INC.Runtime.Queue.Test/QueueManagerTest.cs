@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace INC.Queue.Test
 {
     [TestClass]
-    public class UnitTest1
+    public class QueueManagerTest
     {
         public static int count = 0;
         [TestMethod]
