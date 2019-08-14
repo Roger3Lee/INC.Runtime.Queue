@@ -18,12 +18,12 @@ namespace INC.Runtime.Queue
         public JobPriorityScheduleConfig(DateTime from, TimeSpan interval)
         {
             this.FromDateTime = from;
-            this.Interval = interval.Milliseconds;
+            this.Interval = interval.TotalMilliseconds;
         }
 
         public DateTime FromDateTime { get; private set; }
 
-        public int Interval { get; private set; }
+        public double Interval { get; private set; }
 
         public double GetTimeInterval()
         {

@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29201.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "INC.Runtime.Queue", "INC.Runtime.Queue\INC.Runtime.Queue.csproj", "{17B2C1DD-3344-44D3-AAE3-4F701A4282FD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "INC.Runtime.Queue.Test", "INC.Runtime.Queue.Test\INC.Runtime.Queue.Test.csproj", "{63F62139-3087-4ECA-8169-7318B91707C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "INC.Runtime.Queue.ConsoleTest", "INC.Runtime.Queue.ConsoleTest\INC.Runtime.Queue.ConsoleTest.csproj", "{E10BA3DC-01AA-4134-9EBE-AE3DF514FAB4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{63F62139-3087-4ECA-8169-7318B91707C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63F62139-3087-4ECA-8169-7318B91707C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63F62139-3087-4ECA-8169-7318B91707C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E10BA3DC-01AA-4134-9EBE-AE3DF514FAB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E10BA3DC-01AA-4134-9EBE-AE3DF514FAB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E10BA3DC-01AA-4134-9EBE-AE3DF514FAB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E10BA3DC-01AA-4134-9EBE-AE3DF514FAB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
