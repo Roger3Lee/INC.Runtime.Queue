@@ -34,7 +34,7 @@ namespace INC.Runtime.Queue
         /// </summary>
         private IQueueTask InvokeTask()
         {
-            if (jobContainer.Count - taskJobCount > 0)
+            if (jobContainer.Count > 0)
             {
                 try
                 {
